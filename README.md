@@ -32,7 +32,7 @@ python main.py
 ```
 
 - Uses **EU** site by default (`COUNTRY=eu`) because the EU pages embed full product JSON; the US site loads it via JS.
-- Discovers product URLs from category listing pages (bags, shoes, accessories, etc.), then fetches each product page.
+- Discovers product URLs from category pages (including **pagination** `/page/2`, `/page/3`, … and `/c/CODE` listing URLs) so the full catalog is scraped, not just the first page per category.
 - Fetches each product page, parses embedded JSON for:
   - **title**, **description**, **short_description**
   - **price**, **sale_price**, **currency**, **formatted_price**
@@ -54,6 +54,7 @@ The scraper runs **every day at midnight UTC** and can be **run manually** anyti
 1. In your repo go to **Settings → Secrets and variables → Actions** and add:
    - `SUPABASE_URL` — your Supabase project URL  
    - `SUPABASE_KEY` — your Supabase service role or anon key  
+   Without these, the workflow runs but **nothing is written to your database** (you’ll see “Supabase upserted: 0” and a note in the log).
 
 2. **Manual run:** **Actions** → **Run scraper** → **Run workflow** (button on the right).
 

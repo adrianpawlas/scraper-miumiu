@@ -4,8 +4,13 @@ from typing import Any
 from config import DRY_RUN, SUPABASE_KEY, SUPABASE_URL
 
 
+def is_configured() -> bool:
+    """Return True if Supabase URL and key are set (and non-empty)."""
+    return bool(SUPABASE_URL and SUPABASE_KEY)
+
+
 def _client():
-    if not SUPABASE_URL or not SUPABASE_KEY:
+    if not is_configured():
         return None
     try:
         from supabase import create_client

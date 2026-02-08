@@ -11,7 +11,7 @@ from config import DRY_RUN, LIMIT, SITE_PREFIX
 from scraper.categories import discover_category_urls, iter_product_urls_from_categories
 from scraper.client import get_client, get
 from scraper.product_parser import parse_product_page
-from scraper.supabase_client import upsert_product
+from scraper.supabase_client import is_configured, upsert_product
 
 
 def main() -> None:
@@ -25,6 +25,9 @@ def main() -> None:
     print("Base:", base_url)
     if DRY_RUN:
         print("DRY_RUN=1: only saving JSON, no Supabase upload")
+    if not DRY_RUN and not is_configured():
+        print("WARNING: SUPABASE_URL and/or SUPABASE_KEY not set — products will NOT be written to the database.")
+        print("         Set them in .env (local) or in GitHub Actions -> Settings -> Secrets (Actions).")
     print()
 
     with get_client() as client:
@@ -72,8 +75,11 @@ def main() -> None:
                 f.write("\n".join(failed_urls))
             print(f"\nFailed URLs written to {failed_urls_file}")
 
-    print(f"\nDone. Products saved: {success + (total - success - failed)} (parsed), Supabase upserted: {success}, failed: {failed}")
+    parsed_count = total - failed
+    print(f"\nDone. Products parsed: {parsed_count}, Supabase upserted: {success}, failed: {failed}")
     print(f"JSONL: {products_file}")
+    if parsed_count > 0 and success == 0 and not DRY_RUN:
+        print("NOTE: Nothing was written to Supabase. Add SUPABASE_URL and SUPABASE_KEY to your environment (or GitHub Actions secrets).")
 
 
 if __name__ == "__main__":
