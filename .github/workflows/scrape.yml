@@ -23,6 +23,17 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      - name: Check Supabase secrets
+        run: |
+          echo "SUPABASE_URL: $([ -n \"$SUPABASE_URL\" ] && echo 'set' || echo 'NOT SET')"
+          echo "SUPABASE_KEY: $([ -n \"$SUPABASE_KEY\" ] && echo 'set' || echo 'NOT SET')"
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_KEY" ]; then
+            echo "::warning::Add SUPABASE_URL and SUPABASE_KEY under Settings -> Secrets and variables -> Actions (repository secrets). Names must be exactly SUPABASE_URL and SUPABASE_KEY."
+          fi
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+
       - name: Run scraper
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}

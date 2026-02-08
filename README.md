@@ -53,7 +53,7 @@ The scraper runs **every day at midnight UTC** and can be **run manually** anyti
 
 1. In your repo go to **Settings → Secrets and variables → Actions** and add:
    - `SUPABASE_URL` — your Supabase project URL  
-   - `SUPABASE_KEY` — your Supabase service role or anon key  
+   - `SUPABASE_KEY` — your Supabase service role or anon key. Use **Repository secrets** (not Environment secrets); names are case-sensitive. The log shows "SUPABASE_URL: set" or "NOT SET".
    Without these, the workflow runs but **nothing is written to your database** (you’ll see “Supabase upserted: 0” and a note in the log).
 
 2. **Manual run:** **Actions** → **Run scraper** → **Run workflow** (button on the right).
