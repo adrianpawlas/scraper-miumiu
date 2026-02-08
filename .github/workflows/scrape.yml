@@ -1,0 +1,41 @@
+# Run Miu Miu scraper daily at midnight UTC and on manual trigger.
+# To run at a different time: change cron (e.g. "0 6 * * *" = 06:00 UTC).
+name: Run scraper
+
+on:
+  schedule:
+    # Every day at 00:00 UTC (adjust for your timezone, e.g. 23:00 UTC = midnight CET)
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+    # Manual run: Actions → Run scraper → Run workflow
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run scraper
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          BASE_URL: https://www.miumiu.com
+          MARKET: en
+          COUNTRY: eu
+        run: python main.py
+
+      - name: Upload output (artifact)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: scraper-output-${{ github.run_id }}
+          path: output/
+          retention-days: 7
