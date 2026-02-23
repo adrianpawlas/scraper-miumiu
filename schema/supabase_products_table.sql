@@ -1,9 +1,17 @@
--- Run this in Supabase SQL Editor to create the products table.
--- Adjust types/lengths if your existing schema differs.
+-- Run this in Supabase SQL Editor. This scraper uses source='miumiu'.
+-- For NEW tables (full schema):
+-- create table public.products (id text primary key, source text not null default 'miumiu', product_code text not null, product_url text, ...);
+--
+-- For EXISTING tables, add source if missing:
+-- alter table public.products add column if not exists source text default 'miumiu';
+-- alter table public.products add column if not exists product_url text;
+-- create index if not exists idx_products_source on public.products (source);
 
 create table if not exists public.products (
-  id uuid primary key default gen_random_uuid(),
-  product_code text unique not null,
+  id text primary key,
+  source text not null default 'miumiu',
+  product_code text not null,
+  product_url text,
   title text,
   description text,
   price numeric,
@@ -20,7 +28,9 @@ create table if not exists public.products (
   updated_at timestamptz default now()
 );
 
+create unique index if not exists idx_products_source_product_code on public.products (source, product_code);
 create index if not exists idx_products_product_code on public.products (product_code);
+create index if not exists idx_products_source on public.products (source);
 create index if not exists idx_products_category on public.products (category);
 create index if not exists idx_products_updated_at on public.products (updated_at);
 

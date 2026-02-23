@@ -41,7 +41,7 @@ python main.py
   - **attributes** (color, material, size, etc.)
   - **product_code**, **url**, **raw_data** (full API blob)
 - Appends each product to `output/products.jsonl` (one JSON object per line).
-- Upserts into Supabase `products` table (by `product_code`).
+- **Smart sync** to Supabase via PostgREST HTTP API (no SDK): batch upserts all scraped products, then deletes products in DB that were not found (removed from catalog). No wipe-and-replace.
 
 Outputs:
 - `output/products.jsonl` — all scraped products (JSONL).
@@ -62,6 +62,10 @@ The scraper runs **every day at midnight UTC** and can be **run manually** anyti
 
 4. After each run, `output/` is uploaded as an artifact (kept 7 days) so you can download `products.jsonl` and `failed_urls.txt` from the run page.
 
+## Supabase table schema
+
+The scraper expects a `products` table with at least: `id` (text PK), `source` (text), `product_code`, `product_url`, `title`, `description`, `price`, `sale_price`, `currency`, `main_image`, `additional_images` (jsonb), `url`, `category`, `categories` (jsonb), `attributes` (jsonb), `raw_data` (jsonb). See `schema/supabase_products_table.sql`. For existing tables, add: `alter table products add column if not exists source text default 'miumiu';`
+
 ## If your Supabase table differs
 
-Edit `scraper/supabase_client.py` → `_row_for_supabase()` to map our fields to your column names. The full parsed object (including `raw_data`) is always in the JSONL file.
+Edit `scraper/db.py` → `_format_product()` to map our fields to your column names. The full parsed object (including `raw_data`) is always in the JSONL file.

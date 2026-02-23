@@ -4,7 +4,8 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-load_dotenv(Path(__file__).resolve().parent / ".env")
+# override=False so env vars from GitHub Actions (etc.) are not overwritten by .env
+load_dotenv(Path(__file__).resolve().parent / ".env", override=False)
 
 BASE_URL = os.getenv("BASE_URL", "https://www.miumiu.com").rstrip("/")
 # EU site embeds full product JSON in HTML; US loads it via JS. Default to EU for reliable scraping.
